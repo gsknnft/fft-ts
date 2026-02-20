@@ -1,6 +1,6 @@
 {
   "name": "@gsknnft/fft-ts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "gsknnft",
   "description": "Modern Float64-focused FFT toolkit for TypeScript and Node.js",
   "license": "MIT",
@@ -27,6 +27,7 @@
     "rollup-build": "rollup -c",
     "dev": "vite",
     "start": "webpack-dev-server",
+    "prepack": "rimraf dist/tsconfig.tsbuildinfo",
     "test": "mocha tests/**/*.test.js",
     "build:esm": "tsc -p tsconfig.esm.json",
     "build:cjs": "tsc -p tsconfig.cjs.json",
