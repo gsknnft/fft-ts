@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "dist/cjs",
+    "declarationDir": "dist/cjs/types",
+    "target": "ES2022",
+    "rootDir": "./src",
+    "declaration": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "typeRoots": [
+      "src/types",
+      "../../src/types",
+      "node_modules/@types",
+      "../../node_modules/@types"
+    ]
+  },
+  "include": ["./src"],
+  "exclude": ["src/wasmlet", "node_modules", "dist", "build", "dist/types"]
+}

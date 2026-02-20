@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "baseUrl": ".",
+    "rootDir": "src",
+    "module": "esnext",
+    "strict": false,
+    "target": "ESNext",
+    "composite": true,
+    "declaration": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "noImplicitAny": false,
+    "noUnusedLocals": true,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "typeRoots": [
+      "../../src/types"
+    ],
+    "lib": [
+      "ESNext",
+      "DOM"
+    ]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "wip", "tests", "**/*.test.ts"]
+}

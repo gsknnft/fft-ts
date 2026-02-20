@@ -1,0 +1,61 @@
+{
+  "name": "@sigilnet/fft-ts",
+  "version": "1.0.0",
+  "author": "gsknnft",
+  "description": "Modern Float64-focused FFT toolkit for TypeScript and Node.js",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build:_": "pnpm run clean && vite build && pnpm run build:og && pnpm run rollup-build",
+    "declaration": "tsc -p tsconfig.declaration.json --emitDeclarationOnly --declaration --declarationMap --outDir dist/types",
+    "rollup-build": "rollup -c",
+    "dev": "vite",
+    "start": "webpack-dev-server",
+    "test": "mocha tests/**/*.test.js",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build": "vite build && pnpm run build:og",
+    "build:vite": "vite build",
+    "build:types": "tsc -p tsconfig.json --declaration --emitDeclarationOnly --outDir dist/types",
+    "build:old": "pnpm run clean && vite build && tsc -p tsconfig.json && pnpm run build:esm && pnpm run build:cjs && pnpm run build:types",
+    "typecheck": "tsc --noEmit",
+    "build:og": "tsc -p tsconfig.json && pnpm run build:types",
+    "demo-build": "pnpm run build && webpack",
+    "prepublishOnly": "pnpm run build",
+    "test:mocha": "mocha tests/**/*.test.js"
+  },
+  "devDependencies": {
+    "shx": "^0.4.0",
+    "@types/mocha": "^10.0.10",
+    "eslint": "^9.39.1",
+    "fourier-transform": "^1.1.2",
+    "mocha": "^8.2.1",
+    "ts-node": "^8.2.0",
+    "typescript": "^5.9.3",
+    "webpack": "^5.102.0",
+    "webpack-dev-server": "^5.2.2"
+  },
+  "directories": {
+    "example": "example",
+    "test": "test"
+  },
+  "dependencies": {
+    "bit-twiddle": "1.0.2"
+  }
+}
