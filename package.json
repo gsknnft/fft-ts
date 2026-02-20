@@ -1,6 +1,6 @@
 {
   "name": "@gsknnft/fft-ts",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "gsknnft",
   "description": "Modern Float64-focused FFT toolkit for TypeScript and Node.js",
   "license": "MIT",

@@ -10,3 +10,4 @@ coverage
 *.rollup.cache
 *.tscache
 *.npm-cache
+*.tgz
