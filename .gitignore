@@ -9,3 +9,4 @@ coverage
 .env
 *.rollup.cache
 *.tscache
+*.npm-cache

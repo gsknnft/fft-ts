@@ -1,5 +1,5 @@
 {
-  "name": "@sigilnet/fft-ts",
+  "name": "@gsknnft/fft-ts",
   "version": "1.0.0",
   "author": "gsknnft",
   "description": "Modern Float64-focused FFT toolkit for TypeScript and Node.js",
