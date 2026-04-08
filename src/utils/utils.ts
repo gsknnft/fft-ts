@@ -1,6 +1,6 @@
 //@preserve
-import baseComplexArray from "../utils/complex";
-// export { FFTImageDataRGBA } from '../fftimage';
+import { baseComplexArray } from "./complex";
+export { FFTImageDataRGBA } from '../fftimage';
 
 // Math constants and functions we need.
 const PI: number = Math.PI;
@@ -36,7 +36,7 @@ export class ComplexArray extends baseComplexArray {
 }
 
 function ensureComplexArray(input: any): ComplexArray {
-  return (input instanceof ComplexArray && input) || new ComplexArray(input);
+  return input instanceof ComplexArray ? new ComplexArray(input) : new ComplexArray(input);
 }
 
 function fft(input: ComplexArray, inverse: boolean): ComplexArray {
@@ -85,10 +85,10 @@ function FFT_Recursive(input: ComplexArray, inverse: boolean): ComplexArray {
       output.real[i] += f_r * _real - f_i * _imag;
       output.imag[i] += f_r * _imag + f_i * _real;
 
-      [f_r, f_i] = [
-        f_r * del_f_r - f_i * del_f_i,
-        (f_i = f_r * del_f_i + f_i * del_f_r),
-      ];
+      const next_f_r = f_r * del_f_r - f_i * del_f_i;
+      const next_f_i = f_r * del_f_i + f_i * del_f_r;
+      f_r = next_f_r;
+      f_i = next_f_i;
     }
   }
 

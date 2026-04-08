@@ -1,45 +1,67 @@
-// import {benchDSPJS, benchFourierTransform, benchJensNockert, benchOurFFT} from '../../../../benchmark/bench'
+export type DeinterleaveSource =
+  | ArrayLike<number>
+  | Float32Array
+  | Float64Array
+  | Int16Array
+  | Int32Array
+  | Uint8Array
+  | Uint16Array
+  | Uint32Array;
 
-// export async function deinterleave(args: {bufferSize: number, sampleRate: number}) {
-// const {bufferSize, sampleRate} = args;
-// let buffer1 = new Float32Array(bufferSize);
-// let buffer2 = new Float32Array(bufferSize);
-// let buffer3 = new Float32Array(bufferSize);
-// let buffer4 = new Float32Array(bufferSize);
+export type DeinterleaveOptions = {
+  channels?: number;
+  channel?: number;
+  frameCount?: number;
+};
 
-// for (let i = 0; i < bufferSize; i++) {
-//   buffer1[i] = (i % 2 === 0) ? -Math.random() : Math.random();
-// }
+function resolveFrameCount(
+  inputLength: number,
+  channels: number,
+  frameCount?: number,
+): number {
+  if (frameCount == null) {
+    return Math.floor(inputLength / channels);
+  }
 
-// for (let i = 0; i < bufferSize; i++) {
-//   buffer2[i] = (i % 2 === 0) ? -Math.random() : Math.random();
-// }
+  return Math.max(0, Math.min(frameCount, Math.floor(inputLength / channels)));
+}
 
-// for (let i = 0; i < bufferSize; i++) {
-//   buffer3[i] = (i % 2 === 0) ? -Math.random() : Math.random();
-// }
+export function deinterleave(
+  input: DeinterleaveSource,
+  options: DeinterleaveOptions = {},
+): Float64Array[] {
+  const channels = Math.max(1, Math.floor(options.channels ?? 2));
+  const frames = resolveFrameCount(input.length, channels, options.frameCount);
+  const outputs = Array.from(
+    { length: channels },
+    () => new Float64Array(frames),
+  );
 
-// for (let i = 0; i < bufferSize; i++) {
-//   buffer4[i] = (i % 2 === 0) ? -Math.random() : Math.random();
-// }
+  for (let frame = 0; frame < frames; frame += 1) {
+    const offset = frame * channels;
+    for (let channel = 0; channel < channels; channel += 1) {
+      outputs[channel][frame] = input[offset + channel] ?? 0;
+    }
+  }
 
-// let channel;
-// let temp;
-// const duration = benchFourierTransform(function() { 
-//   channel = deinterleave({bufferSize, sampleRate});
+  return outputs;
+}
 
-//   // cycle buffers
-//   temp = buffer1;
-//   buffer1 = buffer2;
-//   buffer2 = buffer3;
-//   buffer3 = buffer4;
-//   buffer4 = temp;
-// }, 100000);
+export function deinterleaveChannel(
+  input: DeinterleaveSource,
+  options: DeinterleaveOptions = {},
+): Float64Array {
+  const channels = Math.max(1, Math.floor(options.channels ?? 2));
+  const requestedChannel = Math.max(
+    0,
+    Math.min(channels - 1, Math.floor(options.channel ?? 0)),
+  );
+  const frames = resolveFrameCount(input.length, channels, options.frameCount);
+  const output = new Float64Array(frames);
 
-// console.log("Channel length: " + channel.length);
-// console.log("100000 iterations: " + (duration) + " ms (" + ((duration) / 100000) + "ms per iter)\n");
+  for (let frame = 0; frame < frames; frame += 1) {
+    output[frame] = input[frame * channels + requestedChannel] ?? 0;
+  }
 
-// return {
-//     temp
-// }
-// }
+  return output;
+}

@@ -1,8 +1,10 @@
 // src/fft/src/core/fourriouoor.ts
-//@preserve
 import { FFTProcessor } from "../core/fft-processor"; // or wherever you put your FFTProcessor
 // import FFT from "../core/fft-base/fft";
-import { AnyEvent, SignalEvent } from "types";
+
+type AmplitudeEvent = {
+  amplitude: number;
+};
 
 export function padToPowerOfTwo(arr: number[]): number[] {
   const n = arr.length;
@@ -11,7 +13,7 @@ export function padToPowerOfTwo(arr: number[]): number[] {
   return [...arr, ...Array(targetLength - n).fill(0)];
 }
 
-export async function fourriouoorFreq(eventLogs: SignalEvent[]) {
+export async function fourriouoorFreq(eventLogs: AmplitudeEvent[]) {
   const amplitudes = Float64Array.from(
     padToPowerOfTwo(eventLogs.map((e) => e.amplitude))
   );
@@ -30,7 +32,9 @@ export async function fourriouoorFreq(eventLogs: SignalEvent[]) {
   return { result, invResult, mag };
 }
 
-export function fourriouoorAny(eventLogs: any[]): { f: number; mag: number }[] {
+export function fourriouoorAny(
+  eventLogs: AmplitudeEvent[],
+): { f: number; mag: number }[] {
   const amplitudes = Float64Array.from(
     padToPowerOfTwo(eventLogs.map((e) => e.amplitude))
   );
@@ -41,7 +45,7 @@ export function fourriouoorAny(eventLogs: any[]): { f: number; mag: number }[] {
   return Array.from(mags).map((mag, i) => ({ f: i, mag }));
 }
 
-export async function fourriouoorFreqInv(eventLogs: AnyEvent[] | any[]) {
+export async function fourriouoorFreqInv(eventLogs: AmplitudeEvent[]) {
   const amplitudes = Float64Array.from(
     padToPowerOfTwo(eventLogs.map((e) => e.amplitude))
   );
@@ -59,7 +63,7 @@ export async function fourriouoorFreqInv(eventLogs: AnyEvent[] | any[]) {
   return { result, mag };
 }
 
-export async function fourriouoorTick(eventLogs: SignalEvent[] | any[]) {
+export async function fourriouoorTick(eventLogs: AmplitudeEvent[]) {
   const amplitudes = Float64Array.from(
     padToPowerOfTwo(eventLogs.map((e) => e.amplitude))
   );

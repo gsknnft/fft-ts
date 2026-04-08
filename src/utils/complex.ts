@@ -85,3 +85,5 @@ export  class ComplexArray {
     return mags;
   }
 }
+
+export const baseComplexArray = ComplexArray;

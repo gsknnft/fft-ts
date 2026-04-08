@@ -1,6 +1,6 @@
 {
   "name": "@gsknnft/fft-ts",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "gsknnft",
   "description": "Modern Float64-focused FFT toolkit for TypeScript and Node.js",
   "license": "MIT",
@@ -9,6 +9,7 @@
   "types": "./dist/types/index.d.ts",
   "files": [
     "dist",
+    "CHANGELOG.md",
     "README.md",
     "LICENSE"
   ],
@@ -17,6 +18,10 @@
       "types": "./dist/types/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./fftimage": {
+      "types": "./dist/types/fftimage/index.d.ts",
+      "import": "./dist/fftimage/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -38,7 +43,8 @@
     "typecheck": "tsc --noEmit",
     "build:og": "tsc -p tsconfig.json && pnpm run build:types",
     "demo-build": "pnpm run build && webpack",
-    "prepublishOnly": "pnpm run build",
+    "pack:check": "npm pack --dry-run",
+    "prepublishOnly": "pnpm run typecheck && pnpm run build && pnpm run pack:check",
     "test:mocha": "mocha tests/**/*.test.js"
   },
   "devDependencies": {
@@ -58,5 +64,9 @@
   },
   "dependencies": {
     "bit-twiddle": "1.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gsknnft/fft-ts.git"
   }
 }

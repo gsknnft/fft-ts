@@ -1,61 +1,82 @@
-import { Suite } from 'benchmark';
-import { FFTProcessor } from '../../fft/src/core/fft-processor'; // Your own
-import FFT from '../../fft/src/core/fft-base/fft';             // Jens Nockert's FFT (npm fft)
-import fourierTransform from "fourier-transform"; // npm fourier-transform
+import {
+  deinterleave,
+  deinterleaveChannel,
+} from "../../src/deinterleave";
 
-export function createInput(size: number): number[] {
-  // Float array in [-1,1]
-  return Array.from({ length: size }, () => Math.random() * 2 - 1);
+export function createInterleavedInput(
+  frameCount: number,
+  channels = 2,
+): Float32Array {
+  const input = new Float32Array(frameCount * channels);
+
+  for (let frame = 0; frame < frameCount; frame += 1) {
+    for (let channel = 0; channel < channels; channel += 1) {
+      input[frame * channels + channel] = Math.random() * 2 - 1;
+    }
+  }
+
+  return input;
 }
 
-// ---- Your Implementation ----
-export function benchOurFFT(size: number) {
-  const fft = new FFTProcessor(size);
-  const input = Float64Array.from(createInput(size));
-  return () => fft.forward(input);
+function bench(fn: () => void, iterations: number): number {
+  const startedAt = performance.now();
+
+  for (let i = 0; i < iterations; i += 1) {
+    fn();
+  }
+
+  return performance.now() - startedAt;
 }
 
-// ---- Jens Nockert's FFT ----
-export function benchJensNockert(size: number) {
-  const fftP = new FFTProcessor(size);
-  const fft = fftP.fft.complex(size, false);
-  const input = createInput(size * 2); // interleaved real/imag
-  const output = new Array(size * 2);
-  return () => fft.simple(output, input, 'complex');
+export function benchDeinterleave(args: {
+  frameCount: number;
+  channels?: number;
+  iterations?: number;
+}) {
+  const frameCount = Math.max(1, Math.floor(args.frameCount));
+  const channels = Math.max(1, Math.floor(args.channels ?? 2));
+  const iterations = Math.max(1, Math.floor(args.iterations ?? 10000));
+  const input = createInterleavedInput(frameCount, channels);
+
+  let result = deinterleave(input, { channels });
+  const duration = bench(() => {
+    result = deinterleave(input, { channels });
+  }, iterations);
+
+  return {
+    durationMs: duration,
+    iterations,
+    channels,
+    frameCount,
+    outputFrames: result[0]?.length ?? 0,
+    perIterationMs: duration / iterations,
+  };
 }
 
-// ---- DSP.js ----
-export function benchDSPJS(size: number) {
-  const fftP = new FFT(size);
-  const input = createInput(size);
-  return () => fftP.forward(input);
+export function benchDeinterleaveChannel(args: {
+  frameCount: number;
+  channels?: number;
+  channel?: number;
+  iterations?: number;
+}) {
+  const frameCount = Math.max(1, Math.floor(args.frameCount));
+  const channels = Math.max(1, Math.floor(args.channels ?? 2));
+  const channel = Math.max(0, Math.floor(args.channel ?? 0));
+  const iterations = Math.max(1, Math.floor(args.iterations ?? 10000));
+  const input = createInterleavedInput(frameCount, channels);
+
+  let result = deinterleaveChannel(input, { channels, channel });
+  const duration = bench(() => {
+    result = deinterleaveChannel(input, { channels, channel });
+  }, iterations);
+
+  return {
+    durationMs: duration,
+    iterations,
+    channels,
+    channel,
+    frameCount,
+    outputFrames: result.length,
+    perIterationMs: duration / iterations,
+  };
 }
-
-// ---- fourier-transform ----
-export function benchFourierTransform(size: number) {
-  const input = createInput(size);
-  return () => fourierTransform(input);
-}
-
-export function addBenchmarks(suite: Suite, size: number) {
-  suite.add('Our FFT', benchOurFFT(size));
-  suite.add('Jens Nockert FFT', benchJensNockert(size));
-  suite.add('DSP.js', benchDSPJS(size));
-  suite.add('fourier-transform', benchFourierTransform(size));
-}
-
-const sizes = [2048, 4096, 8192, 16384];
-
-sizes.forEach(size => {
-  const suite = new Suite();
-  addBenchmarks(suite, size);
-
-  console.log(`===== FFT Benchmark: size=${size} =====`);
-  suite.on('cycle', (event: any) => {
-    console.log('   ' + String(event.target));
-  }).on('complete', function () {
-    // @ts-ignore
-    console.log('  Fastest is ' + this.filter('fastest').map('name'));
-  });
-  suite.run();
-});

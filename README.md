@@ -1,11 +1,18 @@
-# @gsknnft/fft-ts
+[![NPM Version](https://img.shields.io/npm/v/@gsknnft/fft-ts.svg?style=flat-square)](https://www.npmjs.com/package/@gsknnft/fft-ts)
+[![NPM Downloads](https://img.shields.io/npm/dw/@gsknnft/fft-ts.svg?style=flat-square)](https://www.npmjs.com/package/@gsknnft/fft-ts)
+[![License](https://img.shields.io/npm/l/@gsknnft/fft-ts.svg?style=flat-square)](https://www.npmjs.com/package/@gsknnft/fft-ts)
+[![Socket Badge](https://badge.socket.dev/npm/package/@gsknnft/fft-ts/1.0.3)](https://socket.dev/npm/package/@gsknnft/fft-ts)
 
-Modern FFT toolkit for TypeScript with a Float64-first implementation path.
+# `@gsknnft/fft-ts`
 
-This package is the public/stable FFT lane in SigilNet.
+Production-facing FFT and spectral utility toolkit for TypeScript and Node.js.
 
-- `fft-ts`: optimized public implementation
-- `fft-legacy`: private/internal lane with non-public extensions
+`fft-ts` is the public FFT lane in SigilNet. It exposes:
+- high-level FFT helpers
+- lower-level transform engines
+- image-frequency helpers
+- deinterleave utilities for interleaved channel data
+- event-oriented frequency helpers for quick signal inspection
 
 ## Install
 
@@ -13,44 +20,120 @@ This package is the public/stable FFT lane in SigilNet.
 pnpm add @gsknnft/fft-ts
 ```
 
-## Usage
+## Public Surface
+
+### Core transforms
 
 ```ts
-import { computeFFT, computeFFTSpectrum, fft } from "@gsknnft/fft-ts";
+import {
+  computeFFT,
+  computeFFTSpectrum,
+  fft,
+  FFTProcessor,
+  FourierTransform,
+} from "@gsknnft/fft-ts";
 
 const samples = new Float64Array([0, 1, 0, -1, 0, 1, 0, -1]);
 
-const bins = computeFFT(samples); // complex bins + magnitude/phase
-const spectrum = computeFFTSpectrum(samples); // magnitude spectrum
+const bins = computeFFT(samples);
+const spectrum = computeFFTSpectrum(samples);
 
-const engine = new fft(samples); // low-level FFT engine
+const engine = new fft(samples);
 const out = engine.createComplexArray();
 const input = engine.toComplexArray(samples);
 engine.transform(out, input);
 ```
 
-## API Highlights
+### Deinterleave utilities
 
-- `computeFFT(samples: Float64Array): Complex[]`
-- `computeFFTSpectrum(data: Float64Array): Float64Array`
-- `fft` (default export alias of low-level FFT class)
-- `FFTProcessor` for derived/magnitude workflows
-- utility and core exports under package root
+```ts
+import { deinterleave, deinterleaveChannel } from "@gsknnft/fft-ts";
 
-## Scripts
+const interleaved = new Float32Array([
+  0.1, 0.9,
+  0.2, 0.8,
+  0.3, 0.7,
+]);
+
+const [left, right] = deinterleave(interleaved, { channels: 2 });
+const justLeft = deinterleaveChannel(interleaved, {
+  channels: 2,
+  channel: 0,
+});
+```
+
+### Event / frequency helpers
+
+```ts
+import {
+  fourriouoorAny,
+  fourriouoorFreq,
+  fourriouoorFreqInv,
+  fourriouoorTick,
+  padToPowerOfTwo,
+} from "@gsknnft/fft-ts";
+
+const events = [
+  { amplitude: 0.2 },
+  { amplitude: 0.5 },
+  { amplitude: -0.1 },
+];
+
+const padded = padToPowerOfTwo(events.map((event) => event.amplitude));
+const quickSpectrum = fourriouoorAny(events);
+```
+
+### Image-frequency helper
+
+```ts
+import { FFTImageDataRGBA } from "@gsknnft/fft-ts";
+
+const complexImage = FFTImageDataRGBA(imageData.data, imageData.width, imageData.height);
+```
+
+This helper is useful for experimental image-analysis pipelines, QA metrics, and frequency-domain image inspection. It is not an image reconstruction engine by itself.
+
+## Exported Types
+
+The package also exports shared types such as:
+- `ComplexLike`
+- `FFTDirection`
+- `FFTResult`
+- `SpectrumBin`
+- `AmplitudeEvent`
+- `SignalEvent`
+- `AnyEvent`
+- `DeinterleaveResult`
+
+It also exports utility aliases for the legacy complex-array helper path:
+- `FFTUtility`
+- `InvFFTUtility`
+- `frequencyMapUtility`
+
+## Notes
+
+- The top-level helper APIs now avoid mutating caller-owned `ComplexArray` inputs unexpectedly.
+- `fftimage` is exported as a real runnable surface.
+- `deinterleave` is production-safe and no longer tied to benchmark-only code.
+
+## Suggested Use In Media Pipelines
+
+`fft-ts` is a good fit for:
+- frequency fingerprints
+- edge/detail scoring
+- texture/noise analysis
+- synthetic capture QA
+- interleaved audio/signal channel splitting
+
+It is not intended to replace domain-specific reconstruction or mesh-generation pipelines.
+
+## Release Checks
 
 ```bash
 pnpm --filter @gsknnft/fft-ts typecheck
-pnpm --filter @gsknnft/fft-ts test
 pnpm --filter @gsknnft/fft-ts build
 npm pack --dry-run --prefix packages/fft-ts
 ```
-
-## Scope
-
-- deterministic spectral utilities
-- browser + Node build targets
-- no runtime governance/control-plane logic
 
 ## License
 

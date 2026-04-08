@@ -28,7 +28,6 @@
     "dist",
     "wip",
     "tests",
-    "**/*.test.ts",
-    "src/types/fft.legacy.ts"
+    "**/*.test.ts"
   ]
 }
