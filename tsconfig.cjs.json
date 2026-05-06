@@ -13,8 +13,19 @@
       "../../src/types",
       "node_modules/@types",
       "../../node_modules/@types"
+    ],
+    "types": [
+      "mocha"
     ]
   },
-  "include": ["./src"],
-  "exclude": ["src/wasmlet", "node_modules", "dist", "build", "dist/types"]
+  "include": [
+    "./src"
+  ],
+  "exclude": [
+    "src/wasmlet",
+    "node_modules",
+    "dist",
+    "build",
+    "dist/types"
+  ]
 }

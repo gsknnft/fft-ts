@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
-    "baseUrl": ".",
-    "rootDir": "src",
+    "outDir": "./dist",
+    "rootDir": "./src",
     "module": "esnext",
     "strict": false,
     "target": "ESNext",
@@ -20,14 +19,19 @@
     "lib": [
       "ESNext",
       "DOM"
+    ],
+    "types": [
+      "mocha"
     ]
   },
-  "include": ["src/**/*"],
+  "include": [
+    "./src/**/*"
+  ],
   "exclude": [
     "node_modules",
-    "dist",
-    "wip",
-    "tests",
+    "./dist",
+    "./wip",
+    "./tests",
     "**/*.test.ts"
   ]
 }

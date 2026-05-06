@@ -11,6 +11,7 @@ export { default as fft } from "./core/fft-base/fft";
 export {
   FFTProcessor,
 } from "./core/fft-processor";
+export { default as FFT } from "./core/fft-base/fft";
 export {
   FourierTransform,
 } from "./core/radix2";
@@ -25,3 +26,8 @@ export * as Router from "./router";
 
 export { Complex } from "./complex";
 export { ComplexArray } from "./utils/complex";
+export {
+  FFTUtility as FFTLegacy,
+  InvFFTUtility as InvFFTLegacy,
+  frequencyMapUtility,
+} from "./utils";

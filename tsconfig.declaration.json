@@ -5,7 +5,12 @@
     "skipLibCheck": true,
     "removeComments": true,
     "declaration": true,
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "types": [
+      "mocha"
+    ]
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ]
 }

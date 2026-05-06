@@ -15,8 +15,18 @@
       "../../src/types",
       "node_modules/@types",
       "../../node_modules/@types"
+    ],
+    "types": [
+      "mocha"
     ]
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "build", "dist/types"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "dist/types"
+  ]
 }
