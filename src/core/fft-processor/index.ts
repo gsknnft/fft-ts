@@ -23,7 +23,7 @@ export class FFTProcessor {
     if (n < 2) throw new Error("FFT needs at least 2 samples");
     if ((n & (n - 1)) !== 0) throw new Error("FFT size must be a power of two");
     this.size = n;
-    this.fft = new FFT(size);
+    this.fft = new FFT(this.size);
     this.ft = new FourierTransform(this.size, 1); // sampleRate = 1 by default
   }
 

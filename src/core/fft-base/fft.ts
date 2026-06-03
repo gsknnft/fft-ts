@@ -6,48 +6,41 @@ export default class FFT {
   public table: Float64Array;        // twiddles: [cos, -sin, cos, -sin, ...]
   private _csize: number;            // complex stride (2 * size)
   private _width: number;
-  private _bitrev: Uint32Array;
+  private _bitrev: Int32Array;
   private _out: Float64Array | null = null;
-  private _data: Float64Array | null = null;
+  private _data: ArrayLike<number> | null = null;
   private _inv: number = 0;
-  public data: Float64Array;         // interleaved complex: [re, im, re, im, ...]
+  public data: Float64Array;         // interleaved complex working buffer
   public freq: number = 0;
 
-constructor(input: number[] | Float64Array) {
-  let n = input;
-  if (!(input instanceof Float64Array)) { 
-    n = Float64Array.from(input);
-  }
-  if (n.length <= 2) {
-  this.size = nextPowerOfTwo(input.length);
-  } else {
-  this._csize = this.size << 1;
-  this.size = n.length;
-  }
+  /**
+   * @param size Transform length. Must be a power of two greater than 1.
+   *             For arbitrary-length real input, use the high-level `fft()`
+   *             helper or `padToPowerOfTwo` first.
+   */
+  constructor(size: number) {
+    this.size = size | 0;
+    if (this.size <= 1 || (this.size & (this.size - 1)) !== 0) {
+      throw new Error("FFT size must be a power of two and bigger than 1");
+    }
+    this._csize = this.size << 1;
 
-  // materialize data as interleaved complex, zero-padded
+    // Twiddle factor table: [cos, -sin, cos, -sin, ...]
+    this.table = new Float64Array(this.size * 2);
+    for (let i = 0; i < this.table.length; i += 2) {
+      const angle = (Math.PI * i) / this.size;
+      this.table[i] = Math.cos(angle);
+      this.table[i + 1] = -Math.sin(angle);
+    }
 
-  this.data = new Float64Array(this._csize);
-  for (let i = 0; i < input.length; i++) {
-    this.data[i << 1] = input[i]; // imag = 0
-  }
-
-  // twiddle table
-  this.table = new Float64Array(this._csize);
-  for (let i = 0; i < this._csize; i += 2) {
-    const angle = Math.PI * (i >> 1) / n.length;
-    this.table[i] = Math.cos(angle);
-    this.table[i + 1] = -Math.sin(angle);
-  }
-
-    // bit-reversal (base-4 packing to match your 2-bit chunking pattern)
+    // Radix-2/4 width
     let power = 0;
-    for (let t = 1; t < n.length; t <<= 1) power++;
+    for (let t = 1; this.size > t; t <<= 1) power++;
     this._width = power % 2 === 0 ? power - 1 : power;
 
-    const revLen = 1 << this._width;
-    this._bitrev = new Uint32Array(revLen);
-    for (let j = 0; j < revLen; j++) {
+    // Bit-reversal permutation (base-4 packing)
+    this._bitrev = new Int32Array(1 << this._width);
+    for (let j = 0; j < this._bitrev.length; j++) {
       let r = 0;
       for (let shift = 0; shift < this._width; shift += 2) {
         const revShift = this._width - shift - 2;
@@ -55,6 +48,10 @@ constructor(input: number[] | Float64Array) {
       }
       this._bitrev[j] = r;
     }
+
+    // Back-compat working buffers
+    this.data = new Float64Array(this._csize);
+    this.vector = this.data;
   }
 
   setInverse(inv: boolean) {
@@ -569,4 +566,49 @@ constructor(input: number[] | Float64Array) {
   }
 
 
+}
+
+// ── High-level helpers ─────────────────────────────────────────────────────────
+
+/** Zero-pad a real signal to a fixed power-of-two length. */
+function padReal(input: ArrayLike<number>, size: number): Float64Array {
+  const padded = new Float64Array(size);
+  const n = Math.min(input.length, size);
+  for (let i = 0; i < n; i++) padded[i] = input[i] ?? 0;
+  return padded;
+}
+
+/**
+ * Forward FFT for real-valued input of arbitrary length.
+ *
+ * Pads to the next power of two and returns the full interleaved complex
+ * spectrum `[re0, im0, re1, im1, …]` of length `2 * paddedSize`.
+ *
+ * @example
+ *   const spectrum = fft([0, 1, 0, -1]);   // Float64Array length 8
+ */
+export function fft(input: ArrayLike<number>): Float64Array {
+  const size = nextPowerOfTwo(input.length < 2 ? 2 : input.length);
+  const f = new FFT(size);
+  const out = f.createComplexArray();
+  f.realTransform(out, padReal(input, size));
+  f.completeSpectrum(out);
+  return out;
+}
+
+/**
+ * Magnitude spectrum of a real signal. Returns one magnitude per frequency bin
+ * (length = paddedSize). Bin `k` maps to frequency `k * sampleRate / paddedSize`.
+ *
+ * @example
+ *   const mags = fftMagnitude(signal); // peak bin reveals the dominant period
+ */
+export function fftMagnitude(input: ArrayLike<number>): Float64Array {
+  const spectrum = fft(input);
+  const bins = spectrum.length >>> 1;
+  const mags = new Float64Array(bins);
+  for (let k = 0; k < bins; k++) {
+    mags[k] = Math.hypot(spectrum[2 * k], spectrum[2 * k + 1]);
+  }
+  return mags;
 }

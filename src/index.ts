@@ -7,11 +7,12 @@ export * from "./fftimage";
 export * from "./types";
 export * from "./utils";
 
-export { default as fft } from "./core/fft-base/fft";
 export {
   FFTProcessor,
 } from "./core/fft-processor";
-export { default as FFT } from "./core/fft-base/fft";
+// `FFT` is the low-level class (construct with a power-of-two size).
+// `fft` / `fftMagnitude` are high-level helpers that accept arbitrary real input.
+export { default as FFT, fft, fftMagnitude } from "./core/fft-base/fft";
 export {
   FourierTransform,
 } from "./core/radix2";
