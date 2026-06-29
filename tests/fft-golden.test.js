@@ -1,5 +1,5 @@
-const assert = require("node:assert/strict");
-const { FourierTransform } = require("../dist/index.cjs");
+import assert from "node:assert/strict";
+import { FourierTransform } from "../dist/index.js";
 
 function approxEqual(a, b, eps = 1e-9) {
   return Math.abs(a - b) <= eps;

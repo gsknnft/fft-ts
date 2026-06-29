@@ -1,5 +1,5 @@
-const assert = require("node:assert/strict");
-const pkg = require("../dist/index.cjs");
+import assert from "node:assert/strict";
+import * as pkg from "../dist/index.js";
 
 describe("fft-ts dist smoke", () => {
   it("exports computeFFTSpectrum", () => {
@@ -10,7 +10,12 @@ describe("fft-ts dist smoke", () => {
     assert.equal(typeof pkg.computeFFT, "function");
   });
 
-  it("exports low-level fft class alias", () => {
+  it("exports high-level fft helpers", () => {
     assert.equal(typeof pkg.fft, "function");
+    assert.equal(typeof pkg.fftMagnitude, "function");
+  });
+
+  it("exports low-level FFT class", () => {
+    assert.equal(typeof pkg.FFT, "function");
   });
 });

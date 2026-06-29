@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import path from "path";
-import ts from "./tsconfig.json";
+import ts from "./tsconfig.json" with { type: "json" };
 
 const externalDeps = [
   "os", "http", "https", "zlib", "stream", "path", "util", "fs", "constants",
@@ -9,22 +9,15 @@ const externalDeps = [
 
 const tsPaths =
   ts.compilerOptions && "paths" in ts.compilerOptions && ts.compilerOptions.paths
-    ? Object.keys(ts.compilerOptions.paths).map(key => key.replace("/*", ""))
+    ? Object.keys(ts.compilerOptions.paths).map((key) => key.replace("/*", ""))
     : [];
 
 export default defineConfig({
   build: {
     lib: {
       entry: path.resolve(__dirname, "src/index.ts"),
-      name: "fft_ts",
-      formats: ["es", "cjs", "umd", "iife"],
-      fileName: (format, name) => {
-        if (format === "es") return "index.js";
-        if (format === "cjs") return "index.cjs";
-        if (format === "umd") return "index.umd.js";
-        if (format === "iife") return "index.iife.js";
-        return `index.${format}.js`;
-      }
+      formats: ["es"],
+      fileName: () => "index.js",
     },
     outDir: "dist",
     rollupOptions: {

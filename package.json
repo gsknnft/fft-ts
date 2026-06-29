@@ -4,7 +4,8 @@
   "author": "gsknnft",
   "description": "Modern Float64-focused FFT toolkit for TypeScript and Node.js",
   "license": "MIT",
-  "main": "./dist/index.cjs",
+  "type": "module",
+  "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/types/index.d.ts",
   "files": [
@@ -17,31 +18,20 @@
     ".": {
       "types": "./dist/types/index.d.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "default": "./dist/index.js"
     },
     "./package.json": "./package.json"
   },
   "scripts": {
-    "clean": "rimraf dist",
-    "build:_": "pnpm run clean && vite build && pnpm run build:og && pnpm run rollup-build",
-    "declaration": "tsc -p tsconfig.declaration.json --emitDeclarationOnly --declaration --declarationMap --outDir dist/types",
-    "rollup-build": "rollup -c",
-    "dev": "vite",
-    "start": "webpack-dev-server",
-    "prepack": "rimraf dist/tsconfig.tsbuildinfo",
-    "test": "mocha tests/**/*.test.js",
-    "build:esm": "tsc -p tsconfig.esm.json",
-    "build:cjs": "tsc -p tsconfig.cjs.json",
-    "build": "vite build && pnpm run build:og",
+    "clean": "shx rm -rf dist",
+    "build": "pnpm run clean && vite build && pnpm run build:types",
     "build:vite": "vite build",
-    "build:types": "tsc -p tsconfig.json --declaration --emitDeclarationOnly --outDir dist/types",
-    "build:old": "pnpm run clean && vite build && tsc -p tsconfig.json && pnpm run build:esm && pnpm run build:cjs && pnpm run build:types",
+    "build:types": "tsc -p tsconfig.json --declaration --emitDeclarationOnly --outDir dist/types && shx rm -f dist/tsconfig.tsbuildinfo",
     "typecheck": "tsc --noEmit",
-    "build:og": "tsc -p tsconfig.json && pnpm run build:types",
+    "test": "mocha tests/**/*.test.js",
     "demo-build": "pnpm run build && webpack",
     "pack:check": "npm pack --dry-run",
-    "prepublishOnly": "pnpm run typecheck && pnpm run build && pnpm run pack:check",
-    "test:mocha": "mocha tests/**/*.test.js"
+    "prepublishOnly": "pnpm run typecheck && pnpm run build && pnpm run test && pnpm run pack:check"
   },
   "devDependencies": {
     "shx": "^0.4.0",
