@@ -16,17 +16,17 @@ class FourierTransform {
     this.bufferSize = bufferSize;
     this.sampleRate = sampleRate;
     this.bandwidth = (2 / bufferSize) * sampleRate / 2;
-    this.spectrum = new Float64Array(bufferSize / 2);
+    this.spectrum = new Float64Array(Math.floor(bufferSize / 2));
     this.real = new Float64Array(bufferSize);
     this.imag = new Float64Array(bufferSize);
   }
 
   transform() {
     const size = this.bufferSize;
-    const buffer = new Float64Array(this.bufferSize * 4); // enough space for x, y, scratch
     const x_ptr = 0;
     const y_ptr = size;
     const scratch_ptr = size * 2;
+    const buffer = new Float64Array(scratch_ptr + scratchMemory(size));
 
     buffer.set(this.real, x_ptr);
     buffer.set(this.imag, y_ptr);
@@ -42,7 +42,7 @@ class FourierTransform {
   }
 
   calculateSpectrum(): Float64Array {
-    for (let i = 0; i < this.bufferSize / 2; i++) {
+    for (let i = 0; i < this.spectrum.length; i++) {
       const mag = (2 / this.bufferSize) * Math.sqrt(this.real[i] ** 2 + this.imag[i] ** 2);
       if (mag > this.peak) {
         this.peakBand = i;

@@ -1,7 +1,7 @@
 [![NPM Version](https://img.shields.io/npm/v/@gsknnft/fft-ts.svg?style=flat-square)](https://www.npmjs.com/package/@gsknnft/fft-ts)
 [![NPM Downloads](https://img.shields.io/npm/dw/@gsknnft/fft-ts.svg?style=flat-square)](https://www.npmjs.com/package/@gsknnft/fft-ts)
 [![License](https://img.shields.io/npm/l/@gsknnft/fft-ts.svg?style=flat-square)](https://www.npmjs.com/package/@gsknnft/fft-ts)
-[![Socket Badge](https://badge.socket.dev/npm/package/@gsknnft/fft-ts/1.0.3)](https://socket.dev/npm/package/@gsknnft/fft-ts)
+[![Socket Badge](https://badge.socket.dev/npm/package/@gsknnft/fft-ts)](https://socket.dev/npm/package/@gsknnft/fft-ts)
 
 # `@gsknnft/fft-ts`
 
@@ -29,6 +29,8 @@ import {
   computeFFT,
   computeFFTSpectrum,
   fft,
+  fftMagnitude,
+  FFT,
   FFTProcessor,
   FourierTransform,
 } from "@gsknnft/fft-ts";
@@ -37,11 +39,13 @@ const samples = new Float64Array([0, 1, 0, -1, 0, 1, 0, -1]);
 
 const bins = computeFFT(samples);
 const spectrum = computeFFTSpectrum(samples);
+const fullInterleavedSpectrum = fft(samples);
+const magnitudes = fftMagnitude(samples);
 
-const engine = new fft(samples);
+const engine = new FFT(8);
 const out = engine.createComplexArray();
-const input = engine.toComplexArray(samples);
-engine.transform(out, input);
+engine.realTransform(out, samples);
+engine.completeSpectrum(out);
 ```
 
 ### Deinterleave utilities
@@ -132,7 +136,8 @@ It is not intended to replace domain-specific reconstruction or mesh-generation 
 ```bash
 pnpm --filter @gsknnft/fft-ts typecheck
 pnpm --filter @gsknnft/fft-ts build
-npm pack --dry-run --prefix packages/fft-ts
+pnpm --filter @gsknnft/fft-ts test
+pnpm --filter @gsknnft/fft-ts pack:check
 ```
 
 ## License

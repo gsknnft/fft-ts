@@ -1,5 +1,5 @@
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
-import path from "path";
 import ts from "./tsconfig.json" with { type: "json" };
 
 const externalDeps = [
@@ -15,7 +15,7 @@ const tsPaths =
 export default defineConfig({
   build: {
     lib: {
-      entry: path.resolve(__dirname, "src/index.ts"),
+      entry: fileURLToPath(new URL("./src/index.ts", import.meta.url)),
       formats: ["es"],
       fileName: () => "index.js",
     },

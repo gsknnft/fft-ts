@@ -7,10 +7,6 @@ export interface Complex {
   phase: number;
 }
 
-/**
- * Simplified FFT implementation
- * In production, replace with optimized FFT library (FFTW, KissFFT, etc.)
- */
 export function computeFFT(samples: Float64Array): Complex[] {
   const n = samples.length;
   const ft = new FourierTransform(n, 1);
@@ -32,7 +28,6 @@ export function computeFFT(samples: Float64Array): Complex[] {
 
   return result;
 }
-
 
 export function computeFFTSpectrum(data: Float64Array): Float64Array {
   const ft = new FourierTransform(data.length, 1);

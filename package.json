@@ -1,6 +1,6 @@
 {
   "name": "@gsknnft/fft-ts",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": "gsknnft",
   "description": "Modern Float64-focused FFT toolkit for TypeScript and Node.js",
   "license": "MIT",
@@ -29,7 +29,6 @@
     "build:types": "tsc -p tsconfig.json --declaration --emitDeclarationOnly --outDir dist/types && shx rm -f dist/tsconfig.tsbuildinfo",
     "typecheck": "tsc --noEmit",
     "test": "mocha tests/**/*.test.js",
-    "demo-build": "pnpm run build && webpack",
     "pack:check": "npm pack --dry-run",
     "prepublishOnly": "pnpm run typecheck && pnpm run build && pnpm run test && pnpm run pack:check"
   },
@@ -40,13 +39,7 @@
     "fourier-transform": "^1.1.2",
     "mocha": "^8.2.1",
     "ts-node": "^8.2.0",
-    "typescript": "^6.0.3",
-    "webpack": "^5.102.0",
-    "webpack-dev-server": "^5.2.2"
-  },
-  "directories": {
-    "example": "example",
-    "test": "test"
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "bit-twiddle": "1.0.2"
