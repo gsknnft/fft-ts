@@ -1,4 +1,5 @@
 import { FFTProcessor } from "../core/fft-processor";
+import { isPowerOfTwo, nextPowerOfTwo } from "../core/fft-base/ffutil";
 
 type AmplitudeEvent = {
   amplitude: number;
@@ -6,10 +7,8 @@ type AmplitudeEvent = {
 
 export function padToPowerOfTwo(arr: number[]): number[] {
   const n = arr.length;
-  if (n < 2) return [...arr, ...Array(2 - n).fill(0)];
-
-  const targetLength = 2 ** Math.ceil(Math.log2(n));
-  if (n === targetLength) return arr;
+  const targetLength = nextPowerOfTwo(n < 2 ? 2 : n);
+  if (n === targetLength && isPowerOfTwo(n)) return arr;
   return [...arr, ...Array(targetLength - n).fill(0)];
 }
 

@@ -1,6 +1,7 @@
 import { EigenvalueDecomposition } from "ml-matrix";
 import wt from "discrete-wavelets";
 import { FFTProcessor } from "./core/fft-processor";
+import { isPowerOfTwo, nextPowerOfTwo } from "./core/fft-base/ffutil";
 
 export type RouteSignal = {
   id: unknown;
@@ -21,6 +22,15 @@ export function getFieldMatrix(signals: { phase: number }[]): number[][] {
   );
 }
 
+function toPowerOfTwoSamples(input: ArrayLike<number>): Float64Array {
+  const size = input.length > 1 && isPowerOfTwo(input.length)
+    ? input.length
+    : nextPowerOfTwo(input.length < 2 ? 2 : input.length);
+  const samples = new Float64Array(size);
+  for (let i = 0; i < input.length && i < size; i++) samples[i] = input[i];
+  return samples;
+}
+
 export function scanWaveletRouting(agentSignals: RouteSignal[]): {
   results: RouteResult[];
   eigen: EigenvalueDecomposition;
@@ -28,7 +38,7 @@ export function scanWaveletRouting(agentSignals: RouteSignal[]): {
   const results: RouteResult[] = [];
 
   for (const sig of agentSignals) {
-    const data = Float64Array.from(Array.from(sig.data));
+    const data = toPowerOfTwoSamples(sig.data);
     const fft = new FFTProcessor(data);
     const wave = wt.wavedec(Array.from(data), "db2", "symmetric", 3);
     const energy = wt.energy(wave);

@@ -1,4 +1,4 @@
-import { nextPowerOfTwo } from "./ffutil";
+import { isPowerOfTwo, nextPowerOfTwo } from "./ffutil";
 
 export default class FFT {
   public size: number;
@@ -582,16 +582,24 @@ function padReal(input: ArrayLike<number>, size: number): Float64Array {
  * Forward FFT for real-valued input of arbitrary length.
  *
  * Pads to the next power of two and returns the full interleaved complex
- * spectrum `[re0, im0, re1, im1, …]` of length `2 * paddedSize`.
+ * spectrum `[re0, im0, re1, im1, ...]` of length `2 * paddedSize`.
  *
  * @example
  *   const spectrum = fft([0, 1, 0, -1]);   // Float64Array length 8
  */
 export function fft(input: ArrayLike<number>): Float64Array {
-  const size = nextPowerOfTwo(input.length < 2 ? 2 : input.length);
+  if (new.target) {
+    throw new TypeError("fft() is a function helper; use new FFT(size) for the class API");
+  }
+
+  const inputLength = input.length;
+  const size = isPowerOfTwo(inputLength) && inputLength > 1
+    ? inputLength
+    : nextPowerOfTwo(inputLength < 2 ? 2 : inputLength);
   const f = new FFT(size);
   const out = f.createComplexArray();
-  f.realTransform(out, padReal(input, size));
+  const realInput = size === inputLength ? input : padReal(input, size);
+  f.realTransform(out, realInput);
   f.completeSpectrum(out);
   return out;
 }

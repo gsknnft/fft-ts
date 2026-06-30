@@ -39,10 +39,10 @@ const samples = new Float64Array([0, 1, 0, -1, 0, 1, 0, -1]);
 
 const bins = computeFFT(samples);
 const spectrum = computeFFTSpectrum(samples);
-const fullInterleavedSpectrum = fft(samples);
+const fullInterleavedSpectrum = fft(samples); // function helper; pads only when needed
 const magnitudes = fftMagnitude(samples);
 
-const engine = new FFT(8);
+const engine = new FFT(8); // class API; size must be a power of two
 const out = engine.createComplexArray();
 engine.realTransform(out, samples);
 engine.completeSpectrum(out);

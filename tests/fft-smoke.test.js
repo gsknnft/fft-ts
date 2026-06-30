@@ -61,4 +61,42 @@ describe("fft-ts dist smoke", () => {
     assert.equal(routed.eigen.realEigenvalues.length, 2);
   });
 
+
+  it("keeps fft() as a function and FFT as the constructor", () => {
+    const engine = new pkg.FFT(4);
+    assert.equal(engine.size, 4);
+    assert.throws(
+      () => new pkg.fft([1, 2, 3, 4]),
+      /use new FFT\(size\)/,
+    );
+  });
+
+  it("pads only when the high-level radix helper needs a power-of-two length", () => {
+    assert.equal(pkg.fft(Float64Array.from([1, 2, 3, 4])).length, 8);
+    assert.equal(pkg.fft(Float64Array.from([1, 2, 3])).length, 8);
+    assert.equal(pkg.fftMagnitude(Float64Array.from([1, 2, 3, 4])).length, 4);
+    assert.equal(pkg.fftMagnitude(Float64Array.from([1, 2, 3])).length, 4);
+  });
+
+  it("preserves already power-of-two event arrays when padding is unnecessary", () => {
+    const source = [1, 2, 3, 4];
+    const padded = pkg.padToPowerOfTwo(source);
+    assert.equal(padded, source);
+    assert.deepEqual(pkg.padToPowerOfTwo([1, 2, 3]), [1, 2, 3, 0]);
+  });
+
+  it("pads router signal data only when the FFTProcessor requires it", () => {
+    const routed = pkg.Router.scanWaveletRouting([
+      { id: "a", phase: 0, data: [1, 2, 3] },
+      { id: "b", phase: Math.PI / 2, data: [3, 2, 1] },
+    ]);
+
+    assert.equal(routed.results.length, 2);
+    assert.equal(routed.results.every((entry) => Number.isFinite(entry.energy)), true);
+    assert.equal(routed.results.every((entry) => Number.isFinite(entry.coherence)), true);
+  });
+
 });
+
+
+

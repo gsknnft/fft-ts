@@ -50,7 +50,7 @@ function magnitude(re: number, im: number): number {
 
 /**
  * Magnitude of every complex bin in an interleaved spectrum
- * `[re0, im0, re1, im1, …]`. Returns one magnitude per bin (length = bins/2... no:
+ * `[re0, im0, re1, im1, ...]`. Returns one magnitude per bin (length = bins/2... no:
  * input length L holds L/2 complex bins, so the result has L/2 entries).
  */
 function fftMag(fftBins: Float64Array): Float64Array {
@@ -84,8 +84,13 @@ function fftFreq(fftBins: Float64Array, sampleRate: number): Float64Array {
  * Fast Fourier Transform using Cooley-Tukey radix-2 algorithm
  * Zero external dependencies
  */
+function isPowerOfTwo(n: number): boolean {
+  return Number.isInteger(n) && n > 0 && (n & (n - 1)) === 0;
+}
+
 function nextPowerOfTwo(n: number): number {
   if (n < 1) return 1;
+  if (isPowerOfTwo(n)) return n;
   let p = 1;
   while (p < n) p <<= 1;
   return p;
@@ -107,7 +112,7 @@ function magnitudeFromComplex(values: ComplexArray): Float64Array {
 // }
 
 /**
- * In-place iterative radix-2 Cooley–Tukey FFT over separate real/imag buffers.
+ * In-place iterative radix-2 Cooley-Tukey FFT over separate real/imag buffers.
  * Length must be a power of two. Forward (unnormalized) transform.
  */
 function fftRadix2InPlace(re: Float64Array, im: Float64Array): void {
@@ -186,6 +191,7 @@ export {
     fftFunc,
     magnitudeFromComplex,
     magnitude,
+    isPowerOfTwo,
     nextPowerOfTwo,
     deriveCoherence,
     forwardMagnitudes,
